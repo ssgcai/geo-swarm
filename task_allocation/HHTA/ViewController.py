@@ -1,5 +1,5 @@
 import pygame
-import sys 
+import sys
 
 class ViewController:
 	BLACK = (0, 0, 0)
@@ -8,8 +8,8 @@ class ViewController:
 	RED = (200,0,0)
 	BLUE = (0,0,200)
 	YELLOW = (200, 200, 0)
-	VERTEX_SIZE = 20
-	FPS = 3
+	VERTEX_SIZE = 17
+	FPS = 10
 
 	def __init__(self, configuration):
 		self.configuration = configuration
@@ -18,8 +18,8 @@ class ViewController:
 		pygame.init()
 		self.SCREEN = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
 		self.make_grid()
-		
-		self.font = pygame.font.SysFont(None, 30)
+
+		self.font = pygame.font.SysFont(None, int(self.VERTEX_SIZE*1.2))
 
 	def make_grid(self):
 		self.SCREEN.fill(self.WHITE)
@@ -40,6 +40,12 @@ class ViewController:
 					self.SCREEN.blit(demand_text, (x*self.VERTEX_SIZE+1, self.WINDOW_HEIGHT-y*self.VERTEX_SIZE-self.VERTEX_SIZE+1))
 				elif num_agents > 0:
 					pygame.draw.rect(self.SCREEN, self.GREEN, rect, 0)
+					for agent in self.configuration.vertices[(x,y)].agents:
+						if agent.state.core_state == "Committed":
+							pygame.draw.rect(self.SCREEN, self.BLUE, rect, 0)
+						if agent.state.core_state == "Task":
+							pygame.draw.rect(self.SCREEN, self.YELLOW, rect, 0)
+
 				elif self.configuration.vertices[(x,y)].state.is_home:
 					pygame.draw.rect(self.SCREEN, self.RED, rect, 0)
 				else:
@@ -51,10 +57,8 @@ class ViewController:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
-				#sys.exit()
 		if self.FPS is not None:
 			pygame.time.delay(int(1000/self.FPS))
 
 	def quit(self):
 		pygame.quit()
-		#sys.exit()

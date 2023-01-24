@@ -12,7 +12,6 @@ from matplotlib import pyplot as plt
 
 
 def main():
-    # pool = mp.Pool(mp.cpu_count())
     configuration  = Configuration(N, M, TORUS)
     home = VertexState(is_home=True)
 
@@ -60,6 +59,7 @@ def main():
         for task in tasks:
             tot_rd += task.residual_demand
         residual_demand_over_time.append(tot_rd)
+    print(len(residual_demand_over_time))
 
     plt.plot(residual_demand_over_time)
     plt.savefig("residual_demand_over_time.pdf")
@@ -69,8 +69,6 @@ def main():
     if graphics_on:
         vc.quit()
 
-    # pool.join()
-    # pool.close()
 
 if __name__ == "__main__":
     main()

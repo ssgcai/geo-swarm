@@ -7,7 +7,7 @@ from constants import INFLUENCE_RADIUS
 import time
 
 """
-Given a local vertex mapping, generate a proposed new vertex state and 
+Given a local vertex mapping, generate a proposed new vertex state and
 new agent states and directions for each agent in that vertex
 
 Parameters
@@ -20,15 +20,13 @@ def delta(params):
 	vertex = local_vertex_mapping[(0,0)]
 
 	if len(vertex.agents) == 0:
-		# global_transitory[(x,y)] = vertex.state, {}
-		# return 
 		return x, y, vertex.state, {}
 
 	# Phase One: Each vertex uses their own transition function to propose a new
-	# vertex state, agent state, and direction of motion 
+	# vertex state, agent state, and direction of motion
 	proposed_vertex_states = {}
 	proposed_agent_updates = {}
-	
+
 	for agent in vertex.agents:
 		proposed_vertex_state, proposed_agent_state, direction = agent.generate_transition(local_vertex_mapping)
 
@@ -40,9 +38,7 @@ def delta(params):
 	new_vertex_state, new_agent_updates = naive_resolution(proposed_vertex_states, proposed_agent_updates)
 
 	# Need x and y for setting the global state for parallel processing
-	# global_transitory[(x,y)] = new_vertex_state, new_agent_updates
 	return x, y, new_vertex_state, new_agent_updates
-	#return
 
 class Configuration:
 	"""
@@ -51,7 +47,7 @@ class Configuration:
 	Parameters
 	agent_locations: list
 		list of integers specifying what vertex to initialize each agent in
-	N: int 
+	N: int
 		the height of the configuration
 	M: int
 		the width of the configuration
@@ -73,15 +69,15 @@ class Configuration:
 		self.pool = pool
 
 
-	def add_agents(self, agent_locations): 
-		
+	def add_agents(self, agent_locations):
+
 		for agent_id in range(len(agent_locations)):
 			location = self.vertices[agent_locations[agent_id]]
 			agent = Agent(agent_id, location)
 			self.agents[agent_id] = agent
 			location.agents.add(agent)
 
-	def reset_agent_locations(self, agent_locations, home_nest):
+	def reset_agent_locations(self, agent_locations):
 		for x in range(self.M):
 			for y in range(self.N):
 				self.vertices[(x, y)].agents = set()
@@ -91,43 +87,24 @@ class Configuration:
 			vertex.agents.add(agent)
 			agent.location = vertex
 	"""
-	Generates a global transitory state for the entire configuration 
+	Generates a global transitory state for the entire configuration
 	"""
 	def generate_global_transitory(self):
-		#pool = mp.Pool(mp.cpu_count())
-
 		# Break down into local configurations and generate local transitory configurations for each to create global one
 		global_transitory = {}
-
-		# start = time.time()
-		# params = []
-		# for x in range(self.M):
-		# 	for y in range(self.N):
-		# 		params.append([generate_local_mapping(self.vertices[(x,y)], self.influence_radius, self.vertices), x, y])
-		# print(time.time()-start)
-		# out = self.pool.map(delta, params)
-		# print(time.time()-start)
-		# for x,y, new_vertex_state, new_agent_updates in out:
-		# 	global_transitory[(x,y)] = new_vertex_state, new_agent_updates
-
-		# print(time.time()-start)
-		# pool.close()
-		# pool.join()
-		#start = time.time()
 
 		for x in range(self.M):
 			for y in range(self.N):
 
-				#Get mapping from local coordinates to each neighboring vertex 
+				#Get mapping from local coordinates to each neighboring vertex
 				local_vertex_mapping = generate_local_mapping(self.vertices[(x,y)], self.influence_radius, self.vertices)
 
 				global_transitory[(x,y)] = self.delta(local_vertex_mapping)
-		#print(time.time()-start)
 
 		return global_transitory
 
 	"""
-	Given a local vertex mapping, generate a proposed new vertex state and 
+	Given a local vertex mapping, generate a proposed new vertex state and
 	new agent states and directions for each agent in that vertex
 
 	Parameters
@@ -141,10 +118,10 @@ class Configuration:
 			return vertex.state, {}
 
 		# Phase One: Each vertex uses their own transition function to propose a new
-		# vertex state, agent state, and direction of motion 
+		# vertex state, agent state, and direction of motion
 		proposed_vertex_states = {}
 		proposed_agent_updates = {}
-		
+
 		for agent in vertex.agents:
 			proposed_vertex_state, proposed_agent_state, direction = agent.generate_transition(local_vertex_mapping)
 
@@ -157,8 +134,8 @@ class Configuration:
 		return new_vertex_state, new_agent_updates
 
 	"""
-	Given the global transitory configuration, update the configuration to the new 
-	global state 
+	Given the global transitory configuration, update the configuration to the new
+	global state
 	"""
 	def execute_transition(self,global_transitory):
 		for x,y in global_transitory.keys():
@@ -173,7 +150,7 @@ class Configuration:
 				agent = self.agents[agent_id]
 				update = new_agent_updates[agent_id]
 				if update != None:
-					# Update agent state 
+					# Update agent state
 					agent.state = update.state
 
 					# Update agent location
@@ -201,6 +178,3 @@ class Configuration:
 			if not self.agents[agent_id].terminated:
 				return False
 		return True
-
-
-
